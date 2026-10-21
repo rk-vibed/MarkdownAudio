@@ -25,7 +25,17 @@ We manage all microservices using Kubernetes (often referred to as k8s). The dep
 ## 3. Frontend Tooling & Fast Bundling
 On the client side, our web application is bundled with Vite, enabling sub-millisecond hot reloads. Mathematical and academic documentation is rendered using LaTeX syntax for crisp scientific notation.
 
-## 4. Key Takeaways
+## 4. Benchmark Latency & Infrastructure Matrix
+Here is a comparison of throughput across storage and messaging backends:
+
+| Service Component | Engine / Protocol | P50 Latency | P99 Latency | Max Throughput | Availability SLA |
+|:------------------|:------------------|:------------|:------------|:---------------|:-----------------|
+| Primary Database  | PostgreSQL 16     | 1.8 ms      | 9.4 ms      | 45,000 QPS     | 99.99%           |
+| In-Memory Cache   | Redis Cluster     | 0.3 ms      | 1.2 ms      | 250,000 QPS    | 99.999%          |
+| Event Streaming   | Apache Kafka      | 2.1 ms      | 14.5 ms     | 180,000 msg/s  | 99.95%           |
+| Edge CDN Gateway  | HTTP/3 over QUIC  | 8.5 ms      | 22.0 ms     | 500,000 req/s  | 99.999%          |
+
+## 5. Key Takeaways
 - Use PostgreSQL and optimized SQL for relational integrity
 - Deploy stateless microservices across our k8s clusters
 - Authenticate all internal services via OAuth tokens

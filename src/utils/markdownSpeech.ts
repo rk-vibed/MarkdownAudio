@@ -56,8 +56,10 @@ export function cleanMarkdownForSpeech(
   // 5. Handle blockquotes >
   text = text.replace(/^\s*>\s?/gm, '');
 
-  // 6. Handle horizontal rules
+  // 6. Handle horizontal rules and markdown table dividers
   text = text.replace(/^[-*_]{3,}\s*$/gm, '');
+  text = text.replace(/^\s*\|?[\s:-|-]+\|?\s*$/gm, '');
+  text = text.replace(/\|/g, ', ');
 
   // 7. Handle Bullet and Numbered Lists
   // Replace "- item" or "* item" with clean text followed by comma or pause
