@@ -310,7 +310,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans pb-28 selection:bg-indigo-500/30">
+    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden selection:bg-indigo-500/30">
       {/* Top Navigation */}
       <Header
         selectedVoice={selectedVoice}
@@ -321,11 +321,11 @@ export default function App() {
         onOpenHelp={() => setShowHelp(true)}
       />
 
-      {/* Main Studio Body */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-6 space-y-6 flex-1">
+      {/* Main Studio Body - Covers complete available height */}
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 pt-3 pb-24 flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Active file indicator if loaded from directory */}
         {activeFileName && (
-          <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-indigo-950/30 border border-indigo-500/20 text-xs">
+          <div className="shrink-0 mb-2.5 flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-indigo-950/30 border border-indigo-500/20 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
               <span className="text-slate-400">Active Document from Directory:</span>
@@ -341,7 +341,7 @@ export default function App() {
         )}
 
         {/* Dual Workstation: Markdown Editor (Left) & Speech/Audio Inspector (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0 h-full overflow-hidden">
           <MarkdownEditor
             markdown={markdown}
             onChange={(val) => {

@@ -97,10 +97,10 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     <div
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
-      className="bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col shadow-xl backdrop-blur-md overflow-hidden h-[540px]"
+      className="bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col shadow-xl backdrop-blur-md overflow-hidden h-full flex-1 min-h-0"
     >
       {/* Editor Header Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
+      <div className="shrink-0 flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg bg-slate-950 p-0.5 border border-slate-800">
             <button
@@ -225,7 +225,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       </div>
 
       {/* Footer Stats Bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400">
+      <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <FileText className="w-3.5 h-3.5 text-slate-500" />

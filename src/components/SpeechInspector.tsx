@@ -123,9 +123,9 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col shadow-xl backdrop-blur-md overflow-hidden h-[540px]">
+    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col shadow-xl backdrop-blur-md overflow-hidden h-full flex-1 min-h-0">
       {/* Header Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
+      <div className="shrink-0 flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
             <Volume2 className="w-4 h-4" />
@@ -309,7 +309,7 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
       </div>
 
       {/* Footer Info */}
-      <div className="px-4 py-2 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+      <div className="shrink-0 px-4 py-2 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
         <button
           onClick={onOpenSettings}
           className="flex items-center gap-1.5 hover:text-indigo-300 transition-colors group"
