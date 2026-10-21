@@ -52,8 +52,8 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
     const selectedModel = model === 'gemini-3.8-flash-tts' ? 'gemini-3.8-flash-tts' : 'gemini-3.8-flash-lite-tts';
     const cleanStyle = style && typeof style === 'string' ? style.trim() : '';
 
-    // Check if matching audio is already stored on local disk
-    const cacheKey = getAudioCacheKey(text, selectedVoice, cleanStyle, selectedModel);
+    // Check if matching audio is already stored on local disk (keyed by text, voice, style)
+    const cacheKey = getAudioCacheKey(text, selectedVoice, cleanStyle);
     const cacheFilePath = path.join(AUDIO_CACHE_DIR, `${cacheKey}.wav`);
 
     try {
@@ -147,7 +147,7 @@ app.post('/api/tts/check-cache', async (req: Request, res: Response) => {
 
     for (const sec of sections) {
       if (!sec.text || typeof sec.text !== 'string' || !sec.text.trim()) continue;
-      const cacheKey = getAudioCacheKey(sec.text, selectedVoice, cleanStyle, selectedModel);
+      const cacheKey = getAudioCacheKey(sec.text, selectedVoice, cleanStyle);
       const cacheFilePath = path.join(AUDIO_CACHE_DIR, `${cacheKey}.wav`);
 
       try {

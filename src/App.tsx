@@ -103,15 +103,14 @@ export default function App() {
     const parsed = parseMarkdownSections(markdown, preprocessingOptions, rules);
 
     setSections((prevSections) => {
-      // Preserve existing audio if spoken text and voice settings did not change
+      // Preserve existing audio if spoken text and voice settings did not change (model excluded from cache key)
       return parsed.map((newSec) => {
         const existing = prevSections.find(
           (p) =>
             (p.id === newSec.id || (p.title === newSec.title && p.rawMarkdown === newSec.rawMarkdown)) &&
             p.spokenText === newSec.spokenText &&
             p.audioVoice === selectedVoice &&
-            p.audioStyle === speechStyle &&
-            p.audioModel === selectedModel
+            p.audioStyle === speechStyle
         );
         if (existing && existing.spokenText === newSec.spokenText && existing.status === 'ready' && existing.audioBase64) {
           return {
@@ -128,7 +127,7 @@ export default function App() {
         return newSec;
       });
     });
-  }, [markdown, preprocessingOptions, rules, selectedVoice, speechStyle, selectedModel]);
+  }, [markdown, preprocessingOptions, rules, selectedVoice, speechStyle]);
 
   // Check backend local disk cache for sections whenever text or voice settings change or on reload
   useEffect(() => {
@@ -140,8 +139,7 @@ export default function App() {
         s.status !== 'generating' &&
         (!s.audioBase64 ||
           s.audioVoice !== selectedVoice ||
-          s.audioStyle !== speechStyle ||
-          s.audioModel !== selectedModel) &&
+          s.audioStyle !== speechStyle) &&
         s.spokenText.trim()
     );
 
