@@ -167,7 +167,11 @@ docker run -d \
 ## 📂 Project Structure
 
 ```
-├── server.ts                             # Express backend with /api/tts/generate and suggestion routes
+├── server.ts                             # Express backend entry point
+├── server/                               # Backend services & utilities
+│   └── audioCacheKey.ts                  # Deterministic SHA-256 hash key generator for audio cache
+├── tests/                                # Backend unit tests
+│   └── audioCacheKey.test.ts             # Unit test suite for cache key generation
 ├── src/
 │   ├── components/
 │   │   ├── AudioPlayerBar.tsx            # Bottom audio dock with scrub bar, speed & master WAV export

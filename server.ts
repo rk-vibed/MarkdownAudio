@@ -6,7 +6,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
-import { getAudioCacheKey } from './src/utils/audioCacheKey.ts';
+import { getAudioCacheKey } from './server/audioCacheKey.ts';
 
 dotenv.config();
 

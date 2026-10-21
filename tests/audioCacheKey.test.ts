@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { getAudioCacheKey } from '../src/utils/audioCacheKey.ts';
+import { getAudioCacheKey } from '../server/audioCacheKey.ts';
 
 describe('getAudioCacheKey', () => {
   const sampleText = 'Cloud Microservices & Scalable Systems';
