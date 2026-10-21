@@ -74,6 +74,7 @@ export default function App() {
   const [showDictionary, setShowDictionary] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [showDirectoryBrowser, setShowDirectoryBrowser] = useState<boolean>(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState<boolean>(false);
   const [activeFileName, setActiveFileName] = useState<string | null>(null);
 
   // Persistence
@@ -316,6 +317,7 @@ export default function App() {
         activeRulesCount={rules.filter((r) => r.enabled).length}
         onOpenDictionary={() => setShowDictionary(true)}
         onOpenDirectoryBrowser={() => setShowDirectoryBrowser(true)}
+        onOpenSettings={() => setShowVoiceSettings(true)}
         onOpenHelp={() => setShowHelp(true)}
       />
 
@@ -337,18 +339,6 @@ export default function App() {
             </button>
           </div>
         )}
-
-        {/* Voice & Narration Controls */}
-        <VoiceSettings
-          selectedVoice={selectedVoice}
-          onSelectVoice={setSelectedVoice}
-          speechStyle={speechStyle}
-          onStyleChange={setSpeechStyle}
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
-          preprocessingOptions={preprocessingOptions}
-          onPreprocessingChange={setPreprocessingOptions}
-        />
 
         {/* Dual Workstation: Markdown Editor (Left) & Speech/Audio Inspector (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -374,6 +364,7 @@ export default function App() {
             activeRules={rules}
             selectedVoice={selectedVoice}
             onOpenDictionary={() => setShowDictionary(true)}
+            onOpenSettings={() => setShowVoiceSettings(true)}
           />
         </div>
       </main>
@@ -391,6 +382,20 @@ export default function App() {
         onToggleContinuousPlay={() => setContinuousPlay(!continuousPlay)}
         playbackRate={playbackRate}
         onPlaybackRateChange={setPlaybackRate}
+      />
+
+      {/* Voice & Narration Settings Modal (Gear Icon) */}
+      <VoiceSettings
+        isOpen={showVoiceSettings}
+        onClose={() => setShowVoiceSettings(false)}
+        selectedVoice={selectedVoice}
+        onSelectVoice={setSelectedVoice}
+        speechStyle={speechStyle}
+        onStyleChange={setSpeechStyle}
+        selectedModel={selectedModel}
+        onModelChange={setSelectedModel}
+        preprocessingOptions={preprocessingOptions}
+        onPreprocessingChange={setPreprocessingOptions}
       />
 
       {/* Directory Browser Modal */}

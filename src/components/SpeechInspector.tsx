@@ -12,6 +12,7 @@ import {
   BookOpen,
   ArrowRight,
   RefreshCw,
+  Settings,
 } from 'lucide-react';
 
 interface SpeechInspectorProps {
@@ -26,6 +27,7 @@ interface SpeechInspectorProps {
   activeRules: PronunciationRule[];
   selectedVoice: VoiceName;
   onOpenDictionary: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
@@ -40,6 +42,7 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
   activeRules,
   selectedVoice,
   onOpenDictionary,
+  onOpenSettings,
 }) => {
   const readyCount = sections.filter((s) => s.status === 'ready').length;
   const totalCount = sections.length;
@@ -307,10 +310,15 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
 
       {/* Footer Info */}
       <div className="px-4 py-2 bg-slate-900/90 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-        <span className="flex items-center gap-1.5">
+        <button
+          onClick={onOpenSettings}
+          className="flex items-center gap-1.5 hover:text-indigo-300 transition-colors group"
+          title="Click to configure voice and narration settings"
+        >
           <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-          <span>Natural Voice: {selectedVoice}</span>
-        </span>
+          <span>Voice: <strong className="text-slate-200 group-hover:text-indigo-200">{selectedVoice}</strong></span>
+          <Settings className="w-3 h-3 text-slate-500 group-hover:text-indigo-400 ml-0.5" />
+        </button>
         <span className="text-slate-500">
           Tip: Words in <span className="text-indigo-300 font-mono">[brackets]</span> have custom pronunciation applied
         </span>

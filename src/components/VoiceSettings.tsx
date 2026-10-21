@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { VoiceName, VoiceOption, PreprocessingOptions } from '../types';
-import { Volume2, Sparkles, Settings2, Loader2, Check } from 'lucide-react';
+import { Volume2, Sparkles, Settings2, Loader2, Check, Settings, X } from 'lucide-react';
 
 export const VOICES: VoiceOption[] = [
   {
@@ -54,6 +54,8 @@ export const STYLE_PRESETS = [
 ];
 
 interface VoiceSettingsProps {
+  isOpen: boolean;
+  onClose: () => void;
   selectedVoice: VoiceName;
   onSelectVoice: (voice: VoiceName) => void;
   speechStyle: string;
@@ -65,6 +67,8 @@ interface VoiceSettingsProps {
 }
 
 export const VoiceSettings: React.FC<VoiceSettingsProps> = ({
+  isOpen,
+  onClose,
   selectedVoice,
   onSelectVoice,
   speechStyle,
@@ -102,31 +106,59 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 shadow-xl backdrop-blur-md">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-            <Volume2 className="w-4 h-4" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md">
+      <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+              <Settings className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-slate-100">Voice & Narration Settings</h2>
+                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                  {selectedVoice} Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Choose a natural voice persona, customize cadence, speech model, and markdown handling
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-slate-100 text-sm sm:text-base">Voice & Narration Persona</h3>
-            <p className="text-xs text-slate-400">Select a natural Gemini voice and customize delivery style</p>
-          </div>
+
+          <button
+            onClick={onClose}
+            className="p-1.5 text-slate-400 hover:text-slate-100 rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
-            showAdvanced
-              ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-300'
-              : 'bg-slate-800/80 border-slate-700/60 text-slate-300 hover:bg-slate-800'
-          }`}
-        >
-          <Settings2 className="w-3.5 h-3.5" />
-          {showAdvanced ? 'Hide Options' : 'Markdown Options'}
-        </button>
-      </div>
+        {/* Modal Scrollable Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Voice cards header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Volume2 className="w-4 h-4 text-indigo-400" />
+              <h3 className="font-semibold text-slate-100 text-sm">Select Natural Voice Persona</h3>
+            </div>
+
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
+                showAdvanced
+                  ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-300'
+                  : 'bg-slate-800/80 border-slate-700/60 text-slate-300 hover:bg-slate-800'
+              }`}
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              {showAdvanced ? 'Hide Markdown Rules' : 'Markdown Rules'}
+            </button>
+          </div>
 
       {/* Voice cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
@@ -347,6 +379,19 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({
           </div>
         </div>
       )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-slate-800 bg-slate-900/90 text-xs text-slate-400">
+          <span>Settings automatically apply to all synthesized speech sections.</span>
+          <button
+            onClick={onClose}
+            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors shadow-md shadow-indigo-950/40"
+          >
+            Save & Done
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

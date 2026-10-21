@@ -1,5 +1,5 @@
 import React from 'react';
-import { Headphones, BookOpen, Volume2, Sparkles, HelpCircle, FileText, FolderOpen } from 'lucide-react';
+import { Headphones, BookOpen, Volume2, Sparkles, HelpCircle, FileText, FolderOpen, Settings } from 'lucide-react';
 import { VoiceName } from '../types';
 
 interface HeaderProps {
@@ -7,6 +7,7 @@ interface HeaderProps {
   activeRulesCount: number;
   onOpenDictionary: () => void;
   onOpenDirectoryBrowser: () => void;
+  onOpenSettings: () => void;
   onOpenHelp: () => void;
 }
 
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeRulesCount,
   onOpenDictionary,
   onOpenDirectoryBrowser,
+  onOpenSettings,
   onOpenHelp,
 }) => {
   return (
@@ -61,6 +63,18 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="inline sm:hidden">Pronunciation</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-indigo-600 text-white">
               {activeRulesCount}
+            </span>
+          </button>
+
+          <button
+            onClick={onOpenSettings}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-indigo-500/40 text-xs font-medium flex items-center gap-2 transition-all shadow-sm"
+            title="Voice, Narration Persona & Speech Settings"
+          >
+            <Settings className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="hidden sm:inline">Settings</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-950 text-indigo-300 border border-indigo-500/30 font-medium">
+              {selectedVoice}
             </span>
           </button>
 
