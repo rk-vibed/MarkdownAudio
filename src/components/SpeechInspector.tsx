@@ -13,6 +13,7 @@ import {
   ArrowRight,
   RefreshCw,
   Settings,
+  Eye,
 } from 'lucide-react';
 
 interface SpeechInspectorProps {
@@ -28,6 +29,7 @@ interface SpeechInspectorProps {
   selectedVoice: VoiceName;
   onOpenDictionary: () => void;
   onOpenSettings?: () => void;
+  onPreviewSection?: (sectionId: string) => void;
 }
 
 export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
@@ -43,6 +45,7 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
   selectedVoice,
   onOpenDictionary,
   onOpenSettings,
+  onPreviewSection,
 }) => {
   const readyCount = sections.filter((s) => s.status === 'ready').length;
   const totalCount = sections.length;
@@ -203,7 +206,14 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
                     <span className="w-5 h-5 rounded-full bg-slate-800 text-[10px] font-mono font-semibold text-slate-400 flex items-center justify-center border border-slate-700">
                       {idx + 1}
                     </span>
-                    <h4 className="font-semibold text-slate-200 text-xs sm:text-sm line-clamp-1">{sec.title}</h4>
+                    <button
+                      type="button"
+                      onClick={() => onPreviewSection && onPreviewSection(sec.id)}
+                      className="font-semibold text-slate-200 text-xs sm:text-sm line-clamp-1 hover:text-indigo-300 transition-colors text-left"
+                      title="Click to view rendered preview of this section"
+                    >
+                      {sec.title}
+                    </button>
                     {sec.level > 0 && (
                       <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800/80 text-slate-400 border border-slate-700">
                         H{sec.level}
@@ -212,6 +222,20 @@ export const SpeechInspector: React.FC<SpeechInspectorProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {onPreviewSection && (
+                      <button
+                        type="button"
+                        onClick={() => onPreviewSection(sec.id)}
+                        className={`p-1.5 rounded-lg border transition-colors flex items-center justify-center ${
+                          isActive
+                            ? 'bg-indigo-950/90 text-indigo-300 border-indigo-500/60 shadow-sm'
+                            : 'bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-indigo-300 border-slate-700'
+                        }`}
+                        title="Rendered preview of this section"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                     {/* Status Badge */}
                     {sec.status === 'ready' && (
                       <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">

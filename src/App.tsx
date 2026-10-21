@@ -19,6 +19,7 @@ import { PronunciationDictionaryModal } from './components/PronunciationDictiona
 import { AudioPlayerBar } from './components/AudioPlayerBar';
 import { HelpModal } from './components/HelpModal';
 import { DirectoryBrowserModal } from './components/DirectoryBrowserModal';
+import { SectionRenderedPreviewModal } from './components/SectionRenderedPreviewModal';
 
 export default function App() {
   // Markdown state initialized with rich tech sample
@@ -76,8 +77,24 @@ export default function App() {
   const [showDirectoryBrowser, setShowDirectoryBrowser] = useState<boolean>(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState<boolean>(false);
   const [activeFileName, setActiveFileName] = useState<string | null>(null);
+  const [showSectionPreview, setShowSectionPreview] = useState<boolean>(false);
+  const [autoPopupPreview, setAutoPopupPreview] = useState<boolean>(() => {
+    const saved = localStorage.getItem('md_audio_autopopup_preview');
+    return saved !== null ? saved === 'true' : true;
+  });
 
   // Persistence
+  useEffect(() => {
+    localStorage.setItem('md_audio_autopopup_preview', String(autoPopupPreview));
+  }, [autoPopupPreview]);
+
+  // Auto popup rendered preview when playback begins or section changes while playing
+  useEffect(() => {
+    if (isPlaying && activeSectionId && autoPopupPreview) {
+      setShowSectionPreview(true);
+    }
+  }, [isPlaying, activeSectionId, autoPopupPreview]);
+
   useEffect(() => {
     localStorage.setItem('md_audio_markdown', markdown);
   }, [markdown]);
@@ -365,13 +382,22 @@ export default function App() {
     const sec = sections.find((s) => s.id === sectionId);
     if (!sec) return;
 
+    setActiveSectionId(sectionId);
+    if (autoPopupPreview) {
+      setShowSectionPreview(true);
+    }
+
     if (sec.status === 'ready' && sec.audioBase64) {
-      setActiveSectionId(sectionId);
       setIsPlaying(true);
     } else {
       // Auto-synthesize then play
       handleSynthesizeSection(sectionId, true);
     }
+  };
+
+  const handlePreviewSection = (sectionId: string) => {
+    setActiveSectionId(sectionId);
+    setShowSectionPreview(true);
   };
 
   const handlePause = () => {
@@ -410,6 +436,10 @@ export default function App() {
       }, 200);
     }
   };
+
+  const activeSectionIndex = sections.findIndex((s) => s.id === activeSectionId);
+  const activeSection =
+    (activeSectionIndex >= 0 ? sections[activeSectionIndex] : null) || (sections.length > 0 ? sections[0] : null);
 
   return (
     <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans overflow-hidden selection:bg-indigo-500/30">
@@ -467,6 +497,7 @@ export default function App() {
             selectedVoice={selectedVoice}
             onOpenDictionary={() => setShowDictionary(true)}
             onOpenSettings={() => setShowVoiceSettings(true)}
+            onPreviewSection={handlePreviewSection}
           />
         </div>
       </main>
@@ -484,6 +515,29 @@ export default function App() {
         onToggleContinuousPlay={() => setContinuousPlay(!continuousPlay)}
         playbackRate={playbackRate}
         onPlaybackRateChange={setPlaybackRate}
+        onToggleSectionPreview={() => setShowSectionPreview(!showSectionPreview)}
+        isSectionPreviewOpen={showSectionPreview}
+      />
+
+      {/* Live Rendered Preview Popup of the Playing Section */}
+      <SectionRenderedPreviewModal
+        isOpen={showSectionPreview}
+        onClose={() => setShowSectionPreview(false)}
+        section={activeSection}
+        currentIndex={activeSectionIndex >= 0 ? activeSectionIndex : 0}
+        totalSections={sections.length}
+        isPlaying={isPlaying}
+        onPlaySection={handlePlaySection}
+        onPause={handlePause}
+        onNextSection={handleNextSection}
+        onPrevSection={handlePrevSection}
+        hasNext={activeSectionIndex < sections.length - 1}
+        hasPrev={activeSectionIndex > 0}
+        autoPopup={autoPopupPreview}
+        onToggleAutoPopup={() => setAutoPopupPreview(!autoPopupPreview)}
+        activeRules={rules}
+        selectedVoice={selectedVoice}
+        onSynthesizeSection={handleSynthesizeSection}
       />
 
       {/* Voice & Narration Settings Modal (Gear Icon) */}

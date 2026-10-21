@@ -12,6 +12,7 @@ import {
   Repeat,
   Radio,
   Sliders,
+  Eye,
 } from 'lucide-react';
 import { stitchWavClips } from '../utils/audioConcat';
 
@@ -27,6 +28,8 @@ interface AudioPlayerBarProps {
   onToggleContinuousPlay: () => void;
   playbackRate: number;
   onPlaybackRateChange: (rate: number) => void;
+  onToggleSectionPreview?: () => void;
+  isSectionPreviewOpen?: boolean;
 }
 
 export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
@@ -41,6 +44,8 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
   onToggleContinuousPlay,
   playbackRate,
   onPlaybackRateChange,
+  onToggleSectionPreview,
+  isSectionPreviewOpen,
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -224,9 +229,17 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
               <span className="text-[10px] font-mono px-1 rounded bg-slate-800 text-indigo-300 border border-slate-700">
                 {activeIndex >= 0 ? `Sec ${activeIndex + 1}/${sections.length}` : 'Audio Player'}
               </span>
-              <span className="text-xs font-semibold text-slate-100 truncate">
-                {activeSection ? activeSection.title : 'Ready to play'}
-              </span>
+              <button
+                type="button"
+                onClick={onToggleSectionPreview}
+                className="text-xs font-semibold text-slate-100 truncate hover:text-indigo-300 transition-colors text-left flex items-center gap-1 group"
+                title="Click to view rendered preview of this section"
+              >
+                <span className="truncate">{activeSection ? activeSection.title : 'Ready to play'}</span>
+                {activeSection && (
+                  <Eye className="w-3 h-3 text-slate-500 group-hover:text-indigo-400 shrink-0 opacity-70" />
+                )}
+              </button>
             </div>
             <p className="text-[11px] text-slate-400 truncate">
               {activeSection
@@ -357,6 +370,21 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
               className="w-16 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
             />
           </div>
+
+          {onToggleSectionPreview && (
+            <button
+              onClick={onToggleSectionPreview}
+              className={`px-2.5 py-1.5 rounded-lg border text-xs transition-colors flex items-center gap-1.5 ${
+                isSectionPreviewOpen
+                  ? 'bg-indigo-600/30 border-indigo-500/50 text-indigo-300'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700'
+              }`}
+              title={isSectionPreviewOpen ? 'Hide Section Rendered Preview' : 'Show Section Rendered Preview'}
+            >
+              <Eye className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="hidden sm:inline font-medium">Preview</span>
+            </button>
+          )}
 
           <button
             onClick={handleDownloadFullDocument}

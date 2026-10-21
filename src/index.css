@@ -1,1 +1,129 @@
 @import "tailwindcss";
+
+/* Markdown Rendered Preview Typography */
+.rendered-markdown-content h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #e0e7ff;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+  padding-bottom: 0.35rem;
+}
+
+.rendered-markdown-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #c7d2fe;
+  margin-top: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.rendered-markdown-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  margin-top: 0.65rem;
+  margin-bottom: 0.35rem;
+}
+
+.rendered-markdown-content h4,
+.rendered-markdown-content h5,
+.rendered-markdown-content h6 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.rendered-markdown-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.65;
+  color: #e2e8f0;
+}
+
+.rendered-markdown-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #cbd5e1;
+}
+
+.rendered-markdown-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #cbd5e1;
+}
+
+.rendered-markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.rendered-markdown-content code:not(pre code) {
+  background-color: rgba(30, 41, 59, 0.9);
+  color: #a5b4fc;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.375rem;
+  font-size: 0.85em;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.rendered-markdown-content pre {
+  background-color: #0b0f19;
+  border: 1px solid #1e293b;
+  border-radius: 0.625rem;
+  padding: 0.875rem;
+  overflow-x: auto;
+  margin-bottom: 0.875rem;
+}
+
+.rendered-markdown-content pre code {
+  color: #cbd5e1;
+  font-size: 0.825rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+.rendered-markdown-content blockquote {
+  border-left: 3px solid #6366f1;
+  padding-left: 0.875rem;
+  margin-left: 0;
+  margin-bottom: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  background: rgba(99, 102, 241, 0.05);
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.rendered-markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.875rem;
+  font-size: 0.85rem;
+}
+
+.rendered-markdown-content th,
+.rendered-markdown-content td {
+  border: 1px solid #334155;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+}
+
+.rendered-markdown-content th {
+  background: #1e293b;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.rendered-markdown-content a {
+  color: #818cf8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
