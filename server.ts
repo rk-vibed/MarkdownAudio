@@ -6,6 +6,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
+import { getAudioCacheKey } from './src/utils/audioCacheKey.ts';
 
 dotenv.config();
 
@@ -36,14 +37,6 @@ const ai = new GoogleGenAI({
 // Supported prebuilt voices
 const VALID_VOICES = ['Kore', 'Puck', 'Charon', 'Fenrir', 'Zephyr'] as const;
 type VoiceName = typeof VALID_VOICES[number];
-
-// Helper to compute deterministic hash for audio cache
-function getAudioCacheKey(text: string, voice: string, style: string, model: string): string {
-  return crypto
-    .createHash('sha256')
-    .update(JSON.stringify({ text: text.trim(), voice, style: style.trim(), model }))
-    .digest('hex');
-}
 
 // POST /api/tts/generate
 // Generates speech for a single text chunk, reading from local cache if unchanged, or storing asynchronously
