@@ -1,0 +1,18 @@
+services:
+  markdown-audio-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: markdown-audio-studio
+    ports:
+      - "3000:3000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      # Mount local markdown files directory
+      - ./docs:/app/docs
+      # Mount directory to persist converted WAV files on host
+      - ./audio_output:/app/audio_output
+    restart: unless-stopped
