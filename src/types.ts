@@ -33,6 +33,9 @@ export interface MarkdownSpeechSection {
   audioBlobUrl?: string;
   duration?: number;
   error?: string;
+  audioVoice?: string;
+  audioStyle?: string;
+  audioModel?: string;
 }
 
 export interface PreprocessingOptions {

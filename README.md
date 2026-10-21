@@ -62,6 +62,10 @@
   - Continuous autoplay mode (smoothly advances through sections).
   - Volume control and mute toggle.
 - **Master WAV Stitcher**: Concatenates individual section 24kHz 16-bit mono PCM buffers into a unified, downloadable `.wav` audio file with valid RIFF headers.
+- **Asynchronous Local Disk Audio Storage**:
+  - Synthesized audio files are safely stored asynchronously on the local disk (`./audio_output/cache/`) keyed deterministically by SHA-256 hash of text, voice, style, and model.
+  - On app reload, previously synthesized audio is automatically retrieved from local disk without re-calling the Gemini API.
+  - New synthesis calls are only triggered if the section text or voice settings change.
 
 ---
 

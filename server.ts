@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from '@google/genai';
 
@@ -15,6 +16,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '20mb' }));
+
+// Local directory for asynchronously storing and caching synthesized audio WAV files
+const AUDIO_CACHE_DIR = path.resolve(process.cwd(), './audio_output/cache');
+if (!fs.existsSync(AUDIO_CACHE_DIR)) {
+  fs.mkdirSync(AUDIO_CACHE_DIR, { recursive: true });
+}
 
 // Shared Gemini client with required User-Agent
 const ai = new GoogleGenAI({
@@ -30,8 +37,16 @@ const ai = new GoogleGenAI({
 const VALID_VOICES = ['Kore', 'Puck', 'Charon', 'Fenrir', 'Zephyr'] as const;
 type VoiceName = typeof VALID_VOICES[number];
 
+// Helper to compute deterministic hash for audio cache
+function getAudioCacheKey(text: string, voice: string, style: string, model: string): string {
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify({ text: text.trim(), voice, style: style.trim(), model }))
+    .digest('hex');
+}
+
 // POST /api/tts/generate
-// Generates speech for a single text chunk
+// Generates speech for a single text chunk, reading from local cache if unchanged, or storing asynchronously
 app.post('/api/tts/generate', async (req: Request, res: Response) => {
   try {
     const { text, voice = 'Kore', style, model = 'gemini-3.8-flash-lite-tts' } = req.body;
@@ -42,14 +57,36 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
 
     const selectedVoice: VoiceName = VALID_VOICES.includes(voice) ? voice : 'Kore';
     const selectedModel = model === 'gemini-3.8-flash-tts' ? 'gemini-3.8-flash-tts' : 'gemini-3.8-flash-lite-tts';
+    const cleanStyle = style && typeof style === 'string' ? style.trim() : '';
+
+    // Check if matching audio is already stored on local disk
+    const cacheKey = getAudioCacheKey(text, selectedVoice, cleanStyle, selectedModel);
+    const cacheFilePath = path.join(AUDIO_CACHE_DIR, `${cacheKey}.wav`);
+
+    try {
+      if (fs.existsSync(cacheFilePath)) {
+        const cachedBuffer = await fs.promises.readFile(cacheFilePath);
+        if (cachedBuffer.length > 0) {
+          return res.json({
+            audioBase64: cachedBuffer.toString('base64'),
+            mimeType: 'audio/wav',
+            voice: selectedVoice,
+            model: selectedModel,
+            fromLocalCache: true,
+          });
+        }
+      }
+    } catch (cacheErr) {
+      console.warn('Cache read warning:', cacheErr);
+    }
 
     const speechPart: any = {
       text: text.trim(),
     };
 
-    if (style && typeof style === 'string' && style.trim()) {
+    if (cleanStyle) {
       speechPart.speechMetadata = {
-        style: style.trim(),
+        style: cleanStyle,
       };
     }
 
@@ -80,17 +117,66 @@ app.post('/api/tts/generate', async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'No audio data returned from speech synthesis model.' });
     }
 
+    // Safely store the audio file on local disk asynchronously without blocking the response
+    fs.promises
+      .writeFile(cacheFilePath, Buffer.from(audioBase64, 'base64'))
+      .catch((err) => console.warn(`Async audio write failed for ${cacheKey}:`, err));
+
     return res.json({
       audioBase64,
       mimeType,
       voice: selectedVoice,
       model: selectedModel,
+      fromLocalCache: false,
     });
   } catch (error: any) {
     console.error('Error generating speech:', error);
     return res.status(500).json({
       error: error?.message || 'Failed to synthesize speech',
     });
+  }
+});
+
+// POST /api/tts/check-cache
+// Checks whether audio files for a list of sections already exist in the local disk cache
+app.post('/api/tts/check-cache', async (req: Request, res: Response) => {
+  try {
+    const { sections, voice = 'Kore', style = '', model = 'gemini-3.8-flash-lite-tts' } = req.body;
+    if (!Array.isArray(sections)) {
+      return res.status(400).json({ error: 'sections array is required' });
+    }
+
+    const selectedVoice: VoiceName = VALID_VOICES.includes(voice) ? voice : 'Kore';
+    const selectedModel = model === 'gemini-3.8-flash-tts' ? 'gemini-3.8-flash-tts' : 'gemini-3.8-flash-lite-tts';
+    const cleanStyle = style && typeof style === 'string' ? style.trim() : '';
+
+    const cachedItems: Array<{ id: string; audioBase64: string; mimeType: string }> = [];
+
+    for (const sec of sections) {
+      if (!sec.text || typeof sec.text !== 'string' || !sec.text.trim()) continue;
+      const cacheKey = getAudioCacheKey(sec.text, selectedVoice, cleanStyle, selectedModel);
+      const cacheFilePath = path.join(AUDIO_CACHE_DIR, `${cacheKey}.wav`);
+
+      try {
+        if (fs.existsSync(cacheFilePath)) {
+          const buffer = await fs.promises.readFile(cacheFilePath);
+          if (buffer.length > 0) {
+            cachedItems.push({
+              id: sec.id,
+              audioBase64: buffer.toString('base64'),
+              mimeType: 'audio/wav',
+            });
+          }
+        }
+      } catch (e) {
+        // Skip unreadable cache
+      }
+    }
+
+    return res.json({ cached: cachedItems });
+  } catch (error: any) {
+    console.error('Error checking audio cache:', error);
+    return res.status(500).json({ error: error?.message || 'Failed to check audio cache' });
   }
 });
 

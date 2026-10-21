@@ -103,22 +103,112 @@ export default function App() {
     const parsed = parseMarkdownSections(markdown, preprocessingOptions, rules);
 
     setSections((prevSections) => {
-      // Preserve existing audio if section raw markdown and spoken text did not change
+      // Preserve existing audio if spoken text and voice settings did not change
       return parsed.map((newSec) => {
-        const existing = prevSections.find((p) => p.id === newSec.id || (p.title === newSec.title && p.rawMarkdown === newSec.rawMarkdown));
-        if (existing && existing.spokenText === newSec.spokenText && existing.status === 'ready') {
+        const existing = prevSections.find(
+          (p) =>
+            (p.id === newSec.id || (p.title === newSec.title && p.rawMarkdown === newSec.rawMarkdown)) &&
+            p.spokenText === newSec.spokenText &&
+            p.audioVoice === selectedVoice &&
+            p.audioStyle === speechStyle &&
+            p.audioModel === selectedModel
+        );
+        if (existing && existing.spokenText === newSec.spokenText && existing.status === 'ready' && existing.audioBase64) {
           return {
             ...newSec,
             id: existing.id,
             status: 'ready',
             audioBase64: existing.audioBase64,
             duration: existing.duration,
+            audioVoice: existing.audioVoice,
+            audioStyle: existing.audioStyle,
+            audioModel: existing.audioModel,
           };
         }
         return newSec;
       });
     });
-  }, [markdown, preprocessingOptions, rules]);
+  }, [markdown, preprocessingOptions, rules, selectedVoice, speechStyle, selectedModel]);
+
+  // Check backend local disk cache for sections whenever text or voice settings change or on reload
+  useEffect(() => {
+    if (sections.length === 0) return;
+
+    // Filter sections that need audio for the current voice & text settings
+    const pendingSections = sections.filter(
+      (s) =>
+        s.status !== 'generating' &&
+        (!s.audioBase64 ||
+          s.audioVoice !== selectedVoice ||
+          s.audioStyle !== speechStyle ||
+          s.audioModel !== selectedModel) &&
+        s.spokenText.trim()
+    );
+
+    if (pendingSections.length === 0) return;
+
+    let isCancelled = false;
+
+    const checkLocalCache = async () => {
+      try {
+        const res = await fetch('/api/tts/check-cache', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sections: pendingSections.map((s) => ({ id: s.id, text: s.spokenText })),
+            voice: selectedVoice,
+            style: speechStyle,
+            model: selectedModel,
+          }),
+        });
+
+        const data = await res.json();
+        if (isCancelled || !data.cached || data.cached.length === 0) return;
+
+        const cacheMap = new Map<string, string>();
+        for (const item of data.cached) {
+          cacheMap.set(item.id, item.audioBase64);
+        }
+
+        // Apply cached audio to sections
+        setSections((prev) =>
+          prev.map((s) => {
+            const cachedBase64 = cacheMap.get(s.id);
+            if (cachedBase64) {
+              return {
+                ...s,
+                status: 'ready',
+                audioBase64: cachedBase64,
+                audioVoice: selectedVoice,
+                audioStyle: speechStyle,
+                audioModel: selectedModel,
+                error: undefined,
+              };
+            }
+            return s;
+          })
+        );
+
+        // Compute durations asynchronously
+        for (const item of data.cached) {
+          const duration = await calculateAudioDuration(item.audioBase64);
+          if (!isCancelled) {
+            setSections((prev) =>
+              prev.map((s) => (s.id === item.id ? { ...s, duration } : s))
+            );
+          }
+        }
+      } catch (err) {
+        console.warn('Could not query local audio cache:', err);
+      }
+    };
+
+    checkLocalCache();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [sections.map((s) => s.id + s.spokenText).join(','), selectedVoice, speechStyle, selectedModel]);
 
   // Reset to default pronunciation rules
   const handleResetDefaults = () => {
@@ -176,6 +266,9 @@ export default function App() {
                 status: 'ready',
                 audioBase64: data.audioBase64,
                 duration,
+                audioVoice: selectedVoice,
+                audioStyle: speechStyle,
+                audioModel: selectedModel,
                 error: undefined,
               }
             : s
@@ -204,8 +297,16 @@ export default function App() {
     setIsSynthesizingAll(true);
 
     for (const sec of sections) {
-      // If already ready, continue
-      if (sec.status === 'ready' && sec.audioBase64) continue;
+      // If already ready with matching voice and text, continue
+      if (
+        sec.status === 'ready' &&
+        sec.audioBase64 &&
+        sec.audioVoice === selectedVoice &&
+        sec.audioStyle === speechStyle &&
+        sec.audioModel === selectedModel
+      ) {
+        continue;
+      }
 
       setSections((prev) =>
         prev.map((s) => (s.id === sec.id ? { ...s, status: 'generating', error: undefined } : s))
@@ -238,6 +339,9 @@ export default function App() {
                   status: 'ready',
                   audioBase64: data.audioBase64,
                   duration,
+                  audioVoice: selectedVoice,
+                  audioStyle: speechStyle,
+                  audioModel: selectedModel,
                   error: undefined,
                 }
               : s
